@@ -9,3 +9,5 @@ gradle/wrapper/gradle-wrapper.properties
 gradlew
 gradlew.bat
 /gradle/
+/library/build/
+/application/build/
