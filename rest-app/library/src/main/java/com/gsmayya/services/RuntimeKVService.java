@@ -1,6 +1,5 @@
 package com.gsmayya.services;
 
-
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +19,17 @@ public class RuntimeKVService {
         return this.serviceProperties.getMessage();
     }
 
-    public String storeKV(String key, String value) {
+    public Map<String, String> storeKV(String key, String value) {
         this.serviceProperties.addAnEntry(key, value);
-        return "Stored " + key + " into " + value;
+        return this.serviceProperties.getMapOfNames();
     }
 
     public String getValue(String key) {
         Map<String, String> stringStringMap = this.serviceProperties.getMapOfNames();
-        return (stringStringMap.containsKey(key)) ? stringStringMap.get(key) : "No value stored";
+        return stringStringMap.getOrDefault(key, "No value stored");
+    }
+
+    public FileList getListOfFiles(String dirName) {
+        return new FileList(dirName);
     }
 }

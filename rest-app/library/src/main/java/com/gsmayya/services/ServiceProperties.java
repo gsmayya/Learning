@@ -8,12 +8,8 @@ import java.util.Map;
 @ConfigurationProperties("service")
 public class ServiceProperties {
 
-    private Map<String, String> mapOfNames;
+    private final Map<String, String> mapOfNames = new HashMap<>();
     private String message;
-
-    public ServiceProperties() {
-        mapOfNames = new HashMap<>();
-    }
 
     public Map<String, String> getMapOfNames() {
         return mapOfNames;

@@ -1,12 +1,14 @@
 package com.gsmayya.app;
 
+import com.gsmayya.services.FileList;
 import com.gsmayya.services.RuntimeKVService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.Map;
 
 @SpringBootApplication(scanBasePackages = "com.gsmayya")
 @RestController
@@ -18,19 +20,25 @@ public class RuntimeKVApplication {
         this.runtimeKVService = runtimeKVService;
     }
 
-    @GetMapping("/")
-    public String mesasge() {
-        return runtimeKVService.message();
+    @RequestMapping(value = "/list/{dirName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public FileList getListOfFiles(@PathVariable String dirName) {
+        return this.runtimeKVService.getListOfFiles("/Users/gsmayya/Documents/Code/" + dirName);
+    }
+
+
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> message() {
+        return Collections.singletonMap("response", runtimeKVService.message());
     }
 
     @RequestMapping("/name/{thisName}/{thisValue}")
-    public String storeKV(@PathVariable String thisName, @PathVariable String thisValue) {
+    public Map<String, String> storeKV(@PathVariable String thisName, @PathVariable String thisValue) {
         return this.runtimeKVService.storeKV(thisName, thisValue);
     }
 
     @GetMapping("/name/{thisName}")
-    public String getValue(@PathVariable String thisName) {
-        return this.runtimeKVService.getValue(thisName);
+    public Map<String, String> getValue(@PathVariable String thisName) {
+        return Collections.singletonMap("result", this.runtimeKVService.getValue(thisName));
     }
 
      public static void main(String[] args) {
