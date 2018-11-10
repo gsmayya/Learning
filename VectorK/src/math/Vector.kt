@@ -45,4 +45,8 @@ class Vector(coord: List<Double>) {
     fun direction() : Vector {
         return scalar(1.0/maginitude())
     }
+
+    fun dot(other : Vector) : Double {
+        return coordinates.mapIndexed { index, d -> other.coordinates[index] * d }.sum()
+    }
 }
