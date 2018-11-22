@@ -1,10 +1,5 @@
-
-apply plugin: 'idea'
-//and standard one
-apply plugin: 'java'
-
 buildscript {
-    ext.kotlin_version = '1.3.0'
+    ext.kotlin_version = '1.2.71'
 
     repositories {
         mavenCentral()
@@ -12,6 +7,25 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+}
+
+apply plugin: 'idea'
+//and standard one
+apply plugin: 'java'
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
@@ -28,6 +42,7 @@ dependencies {
     compile group: 'com.linkedin.parseq', name: 'parseq-http-client', version: '3.0.4'
     testCompileClasspath 'org.mockito:mockito-all:1.10.19'
     testCompileClasspath 'org.testng:testng:6.9.6'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 sourceSets {
@@ -41,5 +56,4 @@ test {
         events 'started', 'passed'
     }
 }
-
 

@@ -12,6 +12,10 @@ import java.util.List;
 
 public class TestAllChallengesCode {
 
+    public AllChallengesCode getObject() {
+        return new AllChallengesCode();
+    }
+
     @DataProvider(name = "samples")
     private Object[][] getSamples() {
         return new Object[][]
@@ -24,8 +28,7 @@ public class TestAllChallengesCode {
 
     @Test(dataProvider = "samples")
     public void testBalanced(String input, String output) {
-        AllChallengesCode balancedCheck = new AllChallengesCode();
-        String resultValue = balancedCheck.checkBalanced(input);
+        String resultValue = getObject().checkBalanced(input);
         Assert.assertEquals(resultValue, output);
     }
 
@@ -41,8 +44,7 @@ public class TestAllChallengesCode {
 
     @Test(dataProvider = "sentences")
     public void testPigLatin(String sentence, String converted) {
-        AllChallengesCode simplePigLatin = new AllChallengesCode();
-        String returnValue = simplePigLatin.simplePigLatin(sentence);
+        String returnValue = getObject().simplePigLatin(sentence);
         Assert.assertNotNull(returnValue);
         Assert.assertEquals(returnValue, converted);
     }
@@ -63,8 +65,7 @@ public class TestAllChallengesCode {
 
     @Test(dataProvider = "setOfLists")
     public void testSumCount(List<Integer> listOfIntegers, List<Integer> resultValue) {
-        AllChallengesCode sumTest = new AllChallengesCode();
-        List<Integer> returnValue = sumTest.getSumCount(listOfIntegers);
+        List<Integer> returnValue = getObject().getSumCount(listOfIntegers);
         org.junit.Assert.assertNotNull(returnValue);
         org.junit.Assert.assertArrayEquals(resultValue.toArray(), returnValue.toArray());
     }
@@ -81,8 +82,7 @@ public class TestAllChallengesCode {
 
     @Test(dataProvider = "setOfWords")
     public void testSpinWords(String words, String reversed) {
-        AllChallengesCode spinWords = new AllChallengesCode();
-        String returnValue = spinWords.spinWords(words);
+        String returnValue = getObject().spinWords(words);
         Assert.assertNotNull(returnValue);
         Assert.assertEquals(returnValue, reversed);
     }
@@ -91,16 +91,15 @@ public class TestAllChallengesCode {
     @DataProvider(name = "sequences")
     public static Object[][] testDataForFibonnaci() {
         return new Object[][] {
-                {new Integer(14), new Long(10)},
-                {new Integer(35), new Long(44)},
-                {new Integer(5000), new Long(3382)}
+                {14, 10L},
+                {35, 44L},
+                {5000, 3382L}
         };
     }
 
     @Test(dataProvider = "sequences")
     public void testFiboEvenSum(Integer limit, Long sum) {
-        AllChallengesCode fiboEvenSum = new AllChallengesCode();
-        Long returnValue = fiboEvenSum.sumOfEvenFibonacci(limit);
+        Long returnValue = getObject().sumOfEvenFibonacci(limit);
         Assert.assertNotNull(returnValue);
         Assert.assertEquals(returnValue, sum);
     }
