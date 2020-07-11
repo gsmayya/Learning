@@ -1,26 +1,36 @@
 package com.gsmayya.services;
 
+import com.gsmayya.services.code.java.JavaClassProperties;
+import com.gsmayya.services.code.java.JavaFileHandler;
+import com.gsmayya.services.code.utils.FileHandler;
+import com.gsmayya.services.code.utils.ProjectDirExplorer;
+
 import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileList {
 
     private final String dirName;
-    private final Map<String, Boolean> fileNames;
+
+    private Map<String, JavaClassProperties> properties = new HashMap<>();
+
 
     public FileList(String dirName) {
         this.dirName = dirName;
-        File file = new File(dirName);
-        fileNames = Arrays.stream(file.listFiles())
-                .collect(Collectors.toMap(File::getName, File::isDirectory));
-    }
+        FileHandler javaFileHandler = new JavaFileHandler(properties);
 
-    public Map<String, Boolean> getFileNames() {
-        return fileNames;
+        new ProjectDirExplorer(
+                javaFileHandler.getFilter(),
+                javaFileHandler
+        ).explore(new File(dirName));
     }
 
     public String getDirName() {
         return dirName;
+    }
+
+    public Map<String, JavaClassProperties> getProperties() {
+        return properties;
     }
 }

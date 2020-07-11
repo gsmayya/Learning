@@ -7,6 +7,7 @@ jar {
 }
 
 dependencies {
+    compile 'com.github.javaparser:javaparser-symbol-solver-core:3.6.5'
     compile('org.springframework.boot:spring-boot-starter')
 }
 

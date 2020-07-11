@@ -22,7 +22,7 @@ public class RuntimeKVApplication {
 
     @RequestMapping(value = "/list/{dirName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public FileList getListOfFiles(@PathVariable String dirName) {
-        return this.runtimeKVService.getListOfFiles("/Users/gsmayya/Documents/Code/" + dirName);
+        return this.runtimeKVService.getListOfFiles("/Users/gsmayya/Documents/Code/rest-app_copy/");
     }
 
 
