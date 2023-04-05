@@ -10,10 +10,13 @@
 /build
 */build
 out/
-*/bin/
+**/bin/
 config/
 test-output/
 enerated/
 */target/
 */project/target/
 */project/project/target/
+**/.DS_Store
+**/*.class
+**/*.kts
