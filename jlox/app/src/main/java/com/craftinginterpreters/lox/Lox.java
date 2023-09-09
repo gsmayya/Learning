@@ -14,17 +14,18 @@ public class Lox {
     static boolean hadRuntimeError = false;
     private static final Interpreter interpreter = new Interpreter();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {        
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
         } else if (args.length == 1) {
             runFile(args[0]);
         } else {
+            runFile("./test.lox");
             runPrompt();
         }
     }
 
-    private static void runFile(String path) throws IOException {
+    public static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
         // Indicate an error
@@ -34,7 +35,7 @@ public class Lox {
             System.exit(70);
     }
 
-    private static void runPrompt() throws IOException {
+    public static void runPrompt() throws IOException {        
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
