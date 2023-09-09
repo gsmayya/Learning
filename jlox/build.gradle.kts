@@ -12,6 +12,10 @@ plugins {
   application
 }
 
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
+
 sourceSets {
     main {
         java {
