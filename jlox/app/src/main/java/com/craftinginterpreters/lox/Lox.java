@@ -13,29 +13,36 @@ import java.util.List;
  */
 public class Lox {
 
-    // Global flag to handle Error management. 
+    // Global flag to handle Error management.
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
 
-    // Actual interpreter 
+    // Actual interpreter
     private static final Interpreter interpreter = new Interpreter();
 
     /**
-     * Main method. 
-     * If no argument is given, then a REPL loop is started. Else the file is interpreted and run. 
+     * Main method.
+     * If no argument is given, then a REPL loop is started. Else the file is
+     * interpreted and run.
+     * 
+     * @param args
+     * @throws IOException
      */
-    public static void main(String[] args) throws IOException {        
+    public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
         } else if (args.length == 1) {
             runFile(args[0]);
-        } else {            
+        } else {
             runPrompt();
         }
     }
 
     /**
-     * Reads the file and runs it. 
+     * Reads the file and runs it.
+     * 
+     * @param path
+     * @throws IOException
      */
     public static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
@@ -48,9 +55,11 @@ public class Lox {
     }
 
     /**
-     * Starts a REPL loop to read each line and push it to interpreter. 
+     * Starts a REPL loop to read each line and push it to interpreter.
+     * 
+     * @throws IOException
      */
-    public static void runPrompt() throws IOException {        
+    public static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
@@ -65,9 +74,12 @@ public class Lox {
     }
 
     /**
-     * Actual running. Either gets a line to interpret or entire file. Either way it interprets 
-     * It uses new parser for each line, to parse the tokens. 
-     * Uses a single instance of Interpreter to keep the state. 
+     * Actual running. Either gets a line to interpret or entire file. Either way it
+     * interprets
+     * It uses new parser for each line, to parse the tokens.
+     * Uses a single instance of Interpreter to keep the state.
+     * 
+     * @param source
      */
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
@@ -83,14 +95,21 @@ public class Lox {
     }
 
     /**
-     * Method to display error 
+     * Method to display error
+     * 
+     * @param line
+     * @param message
      */
     static void error(int line, String message) {
         report(line, "", message);
     }
 
     /**
-     * Actual method to push the error to Standard output. 
+     * Actual method to push the error to Standard output.
+     * 
+     * @param line
+     * @param where
+     * @param message
      */
     private static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);
@@ -98,7 +117,10 @@ public class Lox {
     }
 
     /**
-     * Creates a message to find where the happened in the token string. 
+     * Creates a message to find where the happened in the token string.
+     * 
+     * @param token
+     * @param message
      */
     static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
@@ -109,7 +131,9 @@ public class Lox {
     }
 
     /**
-     * Any run time error handling. This is almost exit. 
+     * Any run time error handling. This is almost exit.
+     * 
+     * @param error
      */
     static void runtimeError(RuntimeError error) {
         System.err.println(error.getMessage() +

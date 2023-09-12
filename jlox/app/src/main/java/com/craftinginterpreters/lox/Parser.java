@@ -6,17 +6,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/** 
- * Make meaning out of tokens got by Scanner. 
- * This will return statements which can be interpreted by the interpreter. 
- * Stateless. 
+/**
+ * Make meaning out of tokens got by Scanner.
+ * This will return statements which can be interpreted by the interpreter.
+ * Stateless.
  */
 class Parser {
     private static class ParseError extends RuntimeException {
     }
 
     /**
-     * Set of tokens obtained. 
+     * Set of tokens obtained.
      */
     private final List<Token> tokens;
     /**
@@ -25,15 +25,19 @@ class Parser {
     private int current = 0;
 
     /**
-     * Constructor. 
+     * Constructor.
+     * 
+     * @param tokens
      */
     Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
     /**
-     * Main driver method. 
-     * returns set of statements 
+     * Main driver method.
+     * returns set of statements
+     * 
+     * @return
      */
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
@@ -44,15 +48,20 @@ class Parser {
     }
 
     /**
-     * Each of the statement is defined by pieces. 
+     * Each of the statement is defined by pieces.
      */
 
     /**
-     * Declaration statement. 
+     * Declaration statement.
      * varDeclaration only for now. which will start with "var"
+     * 
+     * @return Stmt
      */
     private Stmt declaration() {
         try {
+            if (match(FUN)) {
+                return function("function");
+            }
             if (match(VAR)) {
                 return varDeclaration();
             }
@@ -65,11 +74,13 @@ class Parser {
     }
 
     /**
-     * Variable declaration 
-     * var IDENTIFIER = EXPRESSION; 
-     * var is consumed by declaration method 
-     * expression() consumes the EXPRESSION 
-     * Rest is taken care in this method. 
+     * Variable declaration
+     * var IDENTIFIER = EXPRESSION;
+     * var is consumed by declaration method
+     * expression() consumes the EXPRESSION
+     * Rest is taken care in this method.
+     * 
+     * @return Stmt
      */
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
@@ -84,13 +95,15 @@ class Parser {
     }
 
     /**
-     * A statement: Can be 
-     *    FOR
-     *    IF 
-     *    PRINT 
-     *    WHILE 
-     *    {  }
-     *    Expression
+     * A statement: Can be
+     * FOR
+     * IF
+     * PRINT
+     * WHILE
+     * { }
+     * Expression
+     * 
+     * @return Stmt
      */
     private Stmt statement() {
         if (match(FOR)) {
@@ -101,6 +114,9 @@ class Parser {
         }
         if (match(PRINT)) {
             return printStatement();
+        }
+        if (match(RETURN)) {
+            return returnStatement();
         }
 
         if (match(WHILE)) {
@@ -115,10 +131,23 @@ class Parser {
     }
 
     /**
-     * for statement 
+     * for statement
      * FOR ( var or expression Statement ; condition ; increment ) {
      * STATMENT BLOCK -> BODY
      * }
+     * 
+     * In the interpreter there is no FOR statement. It is a synatic sugar for
+     * while.
+     * Previous one becomes
+     * {
+     * var or expression statement;
+     * while (condition) {
+     * body;
+     * increment;
+     * }
+     * }
+     * 
+     * @return Stmt
      */
     private Stmt forStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'for'");
@@ -169,6 +198,8 @@ class Parser {
      * while (CONDITION) {
      * STATMENT BLOCK -> BODY
      * }
+     * 
+     * @return Stmt
      */
     private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expec '(' after 'while'");
@@ -179,11 +210,12 @@ class Parser {
     }
 
     /**
-     * if (condition) 
-     *   STATMENT BLOCK -> BODY
-     * else 
-     *   STATMENT BLOCK -> BODY
+     * if (condition)
+     * STATMENT BLOCK -> BODY
+     * else
+     * STATMENT BLOCK -> BODY
      * 
+     * @return Stmt
      */
     private Stmt ifStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'if'.");
@@ -199,9 +231,11 @@ class Parser {
     }
 
     /**
-     * Any statement block within 
+     * Any statement block within
      * {
      * }
+     * 
+     * @return Stmt
      */
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
@@ -214,7 +248,9 @@ class Parser {
     }
 
     /**
-     * print statement needs ; at the end. 
+     * print statement needs ; at the end.
+     * 
+     * @return Stmt
      */
     private Stmt printStatement() {
         Expr value = expression();
@@ -222,8 +258,20 @@ class Parser {
         return new Stmt.Print(value);
     }
 
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        if (!check(SEMICOLON)) {
+            value = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after return value. ");
+        return new Stmt.Return(keyword, value);
+    }
+
     /**
-     * An assigment statement only 
+     * An assigment statement only
+     * 
+     * @return Stmt
      */
     private Stmt expressionStatement() {
         Expr expr = expression();
@@ -231,17 +279,41 @@ class Parser {
         return new Stmt.Expression(expr);
     }
 
+    private Stmt.Function function(String kind) {
+        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<Token> parameters = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() > 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+        // Now handle the body of function
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Stmt> body = block();
+        return new Stmt.Function(name, parameters, body);
+    }
+
     /**
      * Assigment statement
-    */
+     * 
+     * @return Stmt
+     */
     private Expr expression() {
         return assignment();
     }
 
     /**
-     * IDENFITER = assignment 
-     * or this could be 
-     * Conditional with logical operator 
+     * IDENFITER = assignment
+     * or this could be
+     * Conditional with logical operator
+     * 
+     * @return Stmt
      */
     private Expr assignment() {
         Expr expr = or();
@@ -261,7 +333,9 @@ class Parser {
     }
 
     /**
-     * OR is parsed first and each block can be simple expression and AND 
+     * OR is parsed first and each block can be simple expression and AND
+     * 
+     * @return Stmt
      */
     private Expr or() {
         Expr expr = and();
@@ -275,6 +349,11 @@ class Parser {
         return expr;
     }
 
+    /**
+     * AND
+     * 
+     * @return Stmt
+     */
     private Expr and() {
         Expr expr = equality();
 
@@ -333,7 +412,35 @@ class Parser {
             Expr right = unary();
             return new Expr.Unary(operator, right);
         }
-        return primary();
+        return call();
+    }
+
+    private Expr call() {
+        Expr expr = primary();
+
+        while (true) {
+            if (match(LEFT_PAREN)) {
+                expr = finishCall(expr);
+            } else {
+                break;
+            }
+        }
+        return expr;
+    }
+
+    private Expr finishCall(Expr callee) {
+        List<Expr> arguments = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (arguments.size() >= 255) {
+                    error(peek(), "Can't have more than 255 arguments.");
+                }
+                arguments.add(expression());
+            } while (match(COMMA));
+        }
+
+        Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+        return new Expr.Call(callee, paren, arguments);
     }
 
     private Expr primary() {

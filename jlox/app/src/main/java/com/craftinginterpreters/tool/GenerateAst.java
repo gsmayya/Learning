@@ -6,6 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GenerateAst {
+    /**
+     * Main function to generate the AST. Use the given generateAst.sh file to get
+     * it generated.
+     * 
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.err.println("Usage: generate_gst <output directory>");
@@ -15,6 +22,7 @@ public class GenerateAst {
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign : Token name, Expr value",
                 "Binary : Expr left, Token operator, Expr right",
+                "Call : Expr callee, Token paren, List<Expr> arguments",
                 "Grouping : Expr expression",
                 "Literal : Object value",
                 "Logical: Expr left, Token operator, Expr right",
@@ -24,8 +32,10 @@ public class GenerateAst {
         defineAst(outputDir, "Stmt", Arrays.asList(
                 "Block : List<Stmt> statements",
                 "Expression: Expr expression",
+                "Function : Token name, List<Token> params, List<Stmt> body",
                 "If : Expr condition, Stmt thenBranch, Stmt elseBranch",
                 "Print : Expr expression",
+                "Return : Token keyword, Expr value",
                 "Var : Token name, Expr initializer",
                 "While : Expr condition, Stmt body"));
     }
