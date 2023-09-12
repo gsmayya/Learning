@@ -6,17 +6,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/** 
+ * Make meaning out of tokens got by Scanner. 
+ * This will return statements which can be interpreted by the interpreter. 
+ * Stateless. 
+ */
 class Parser {
     private static class ParseError extends RuntimeException {
     }
 
+    /**
+     * Set of tokens obtained. 
+     */
     private final List<Token> tokens;
+    /**
+     * State management
+     */
     private int current = 0;
 
+    /**
+     * Constructor. 
+     */
     Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
+    /**
+     * Main driver method. 
+     * returns set of statements 
+     */
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
@@ -25,6 +43,14 @@ class Parser {
         return statements;
     }
 
+    /**
+     * Each of the statement is defined by pieces. 
+     */
+
+    /**
+     * Declaration statement. 
+     * varDeclaration only for now. which will start with "var"
+     */
     private Stmt declaration() {
         try {
             if (match(VAR)) {
@@ -38,6 +64,13 @@ class Parser {
         }
     }
 
+    /**
+     * Variable declaration 
+     * var IDENTIFIER = EXPRESSION; 
+     * var is consumed by declaration method 
+     * expression() consumes the EXPRESSION 
+     * Rest is taken care in this method. 
+     */
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
 
@@ -50,6 +83,15 @@ class Parser {
         return new Stmt.Var(name, initializer);
     }
 
+    /**
+     * A statement: Can be 
+     *    FOR
+     *    IF 
+     *    PRINT 
+     *    WHILE 
+     *    {  }
+     *    Expression
+     */
     private Stmt statement() {
         if (match(FOR)) {
             return forStatement();
@@ -72,6 +114,12 @@ class Parser {
         return expressionStatement();
     }
 
+    /**
+     * for statement 
+     * FOR ( var or expression Statement ; condition ; increment ) {
+     * STATMENT BLOCK -> BODY
+     * }
+     */
     private Stmt forStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'for'");
 
@@ -117,6 +165,11 @@ class Parser {
         return body;
     }
 
+    /**
+     * while (CONDITION) {
+     * STATMENT BLOCK -> BODY
+     * }
+     */
     private Stmt whileStatement() {
         consume(LEFT_PAREN, "Expec '(' after 'while'");
         Expr condition = expression();
@@ -125,6 +178,13 @@ class Parser {
         return new Stmt.While(condition, body);
     }
 
+    /**
+     * if (condition) 
+     *   STATMENT BLOCK -> BODY
+     * else 
+     *   STATMENT BLOCK -> BODY
+     * 
+     */
     private Stmt ifStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'if'.");
         Expr condition = expression();
@@ -138,6 +198,11 @@ class Parser {
         return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
+    /**
+     * Any statement block within 
+     * {
+     * }
+     */
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
@@ -148,22 +213,36 @@ class Parser {
         return statements;
     }
 
+    /**
+     * print statement needs ; at the end. 
+     */
     private Stmt printStatement() {
         Expr value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
         return new Stmt.Print(value);
     }
 
+    /**
+     * An assigment statement only 
+     */
     private Stmt expressionStatement() {
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
     }
 
+    /**
+     * Assigment statement
+    */
     private Expr expression() {
         return assignment();
     }
 
+    /**
+     * IDENFITER = assignment 
+     * or this could be 
+     * Conditional with logical operator 
+     */
     private Expr assignment() {
         Expr expr = or();
 
@@ -181,6 +260,9 @@ class Parser {
         return expr;
     }
 
+    /**
+     * OR is parsed first and each block can be simple expression and AND 
+     */
     private Expr or() {
         Expr expr = and();
 

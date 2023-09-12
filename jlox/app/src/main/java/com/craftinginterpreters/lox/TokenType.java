@@ -1,5 +1,8 @@
 package com.craftinginterpreters.lox;
 
+/**
+ * Enum for all types of tokens applicable in the project. 
+ */
 enum TokenType {
     // Single-character tokens.
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
@@ -20,3 +23,4 @@ enum TokenType {
 
     EOF
 }
+
