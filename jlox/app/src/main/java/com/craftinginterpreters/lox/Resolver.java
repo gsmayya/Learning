@@ -43,7 +43,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   private void beginScope() {
-    scopes.push(new HashMap<String, Boolean>(0, 0));
+    scopes.push(new HashMap<String, Boolean>());
   }
 
   private void endScope() {
