@@ -88,8 +88,15 @@ public class Lox {
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
 
-        if (hadError)
+        if (hadError) {
             return;
+        }
+
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+        if (hadError) {
+            return;
+        }
         // System.out.println(new AstPrinter().print(statements));
         interpreter.interpret(statements);
     }
