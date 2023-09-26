@@ -324,7 +324,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitSetExpr(Set expr) {
         Object object = evaluate(expr.object);
 
-        if (!object instanceof LoxInstance) {
+        if (!(object instanceof LoxInstance)) {
             throw new RuntimeError(expr.name, "Only instances have fields.");
         }
 
