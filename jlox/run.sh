@@ -1,5 +1,5 @@
 #!/bin/bash
-
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home/
 build="NO"
 while getopts bf: flag
 do
