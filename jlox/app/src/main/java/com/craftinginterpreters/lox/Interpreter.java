@@ -11,7 +11,7 @@ import com.craftinginterpreters.lox.Expr.Super;
 import com.craftinginterpreters.lox.Expr.This;
 import com.craftinginterpreters.lox.Stmt.Class;
 
-public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
     final Environment globals = new Environment();
     private Environment environment = globals;
@@ -22,14 +22,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         globals.define("milliseconds", NativeFunctions.clockMilliNative());
     }
 
-    void interpret(List<Stmt> statements) {
+    Object interpret(List<Stmt> statements) {
+        Object returnObj = null;
         try {
             for (Stmt statement : statements) {
-                execute(statement);
+                returnObj = execute(statement);
             }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+        return returnObj;
     }
 
     @Override
@@ -38,48 +40,61 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object right = evaluate(expr.right);
 
         switch (expr.operator.type) {
-            case GREATER:
+            case GREATER -> {
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left > (double) right;
-            case GREATER_EQUAL:
+            }
+            case GREATER_EQUAL ->  {
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left >= (double) right;
-            case LESS:
+            }
+            case LESS -> {
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left < (double) right;
-            case LESS_EQUAL:
+            }
+            case LESS_EQUAL ->  {
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left <= (double) right;
-            case BANG_EQUAL:
+            }
+            case BANG_EQUAL -> {
                 return !isEqual(left, right);
-            case EQUAL_EQUAL:
+            }
+            case EQUAL_EQUAL -> {
                 return isEqual(left, right);
-            case MINUS:
+            }
+            case MINUS -> {
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left - (double) right;
-            case PLUS:
+            }
+            case PLUS -> {
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
                 }
-                // Can you make this work for "lox" +3 as lox3 .. Not as lox3.0
                 if (left instanceof String && right instanceof String) {
                     return (String) left + (String) right;
                 }
-                throw new RuntimeError(expr.operator, "Operarands must be two numbers or two strings");
-            case SLASH:
+                // Works for all instances except the literal itself was a.0 where it loses the .0 part of it
+                if (left instanceof String) {
+                    return (String) left + stringify(right);
+                }
+                throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings");
+            }
+            case SLASH -> {
                 checkNumberOperands(expr.operator, left, right);
                 if ((double) right == 0.0) {
                     throw new RuntimeError(expr.operator, "Cannot divide by 0");
                 }
                 return (double) left / (double) right;
-            case STAR:
+            }
+            case STAR -> {
                 checkNumberOperands(expr.operator, left, right);
                 return (double) left * (double) right;
-
+            }
+            default -> {
+                // should be unreachable
+                return null;
+            }
         }
-
-        // Should be unreachable
-        return null;
     }
 
     @Override
@@ -96,15 +111,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitUnaryExpr(Expr.Unary expr) {
         Object right = evaluate(expr.right);
 
-        switch (expr.operator.type) {
-            case BANG:
-                return !isTruthy(right);
-            case MINUS:
+        return switch (expr.operator.type) {
+            case BANG -> !isTruthy(right);
+            case MINUS -> {
                 checkNumberOperand(expr.operator, right);
-                return -(double) right;
-        }
-        // Should be unreachable
-        return null;
+                yield -(double) right;
+            }
+            default -> null;
+        };
     }
 
     private Object evaluate(Expr expr) {
@@ -139,8 +153,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
 
-    private void execute(Stmt stmt) {
-        stmt.accept(this);
+    private Object execute(Stmt stmt) {
+        return stmt.accept(this);
     }
 
     void resolve(Expr expr, int depth) {
@@ -161,9 +175,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
-    public Void visitExpressionStmt(Stmt.Expression stmt) {
-        evaluate(stmt.expression);
-        return null;
+    public Object visitExpressionStmt(Stmt.Expression stmt) {
+        return evaluate(stmt.expression);
     }
 
     @Override
