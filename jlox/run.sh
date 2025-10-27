@@ -1,5 +1,4 @@
 #!/bin/bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home/
 build="NO"
 while getopts bf: flag
 do
@@ -12,13 +11,13 @@ done
 
 if [ $build == "YES" ]
   then    
-    ./gradlew build 
+    gradle build
     echo "Build complete"    
 fi
 
 if [ -z $filename ]
 then 
-  ./gradlew run -q --console=plain
+  gradle run -q --console=plain
 else
-  ./gradlew run --args "$filename"
+  gradle run --args "$filename"
 fi 
