@@ -11,7 +11,7 @@ import java.util.Map;
  * String of text == Tokens in the Grammar. 
  * Parser will get these tokens and generates the meaning ful. 
  */
-class Scanner {
+public class Scanner {
 
     /**
      * Set of keywords

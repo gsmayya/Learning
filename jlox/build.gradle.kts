@@ -16,11 +16,38 @@ tasks.named<JavaExec>("run") {
     standardInput = System.`in`
 }
 
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+
+dependencies {
+    // This dependency is used by the application.
+    implementation("com.google.guava:guava:30.1.1-jre")
+}
+
+testing {
+    suites {
+        // Configure the built-in test suite
+        val test by getting(JvmTestSuite::class) {
+            // Use TestNG test framework
+            useTestNG("7.4.0")
+        }
+    }
+}
+
+
 sourceSets {
     main {
         java {
             setSrcDirs(listOf("app/src/main/java"))
-        }        
+        }
+    }
+    test {
+        java {
+            setSrcDirs(listOf("app/src/test/java"))
+        }
     }
 }
 
